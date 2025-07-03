@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Video Hosting Platform</title>
+  <style>
+    body { font-family: sans-serif; margin: 0; padding: 0; }
+    header, nav, main, footer { padding: 1rem; }
+    .controls button { margin-right: 0.5rem; }
+    nav button { margin-right: 1rem; }
+    canvas {
+      display: block;
+      margin: 1rem auto;
+      border: 2px solid #888;
+      background-color: #f9f9f9;
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <button onclick="location.hash = 'home'">Главная</button>
+    <button onclick="location.hash = 'watch'">Смотреть</button>
+    <button onclick="location.hash = 'upload'">Загрузить</button>
+  </nav>
+
+  <div id="home">
+    <header>
+      <h1>VideoHub</h1>
+      <input type="search" placeholder="Поиск видео...">
+    </header>
+    <main>
+      <section id="recommended">
+        <h2>Рекомендованные видео</h2>
+      </section>
+      <canvas id="canvas-home" width="640" height="200"></canvas>
+    </main>
+  </div>
+
+  <div id="watch" style="display: none;">
+    <main>
+      <canvas id="canvas" width="640" height="360"></canvas>
+      <div class="controls">
+        <button onclick="toggleLike()">👍</button>
+        <button onclick="toggleDislike()">👎</button>
+        <button onclick="subscribe()">Подписаться</button>
+      </div>
+      <section>
+        <h3>Описание</h3>
+        <p>(заглушка)</p>
+      </section>
+      <section>
+        <h3>Комментарии</h3>
+      </section>
+      <section>
+        <h3>Рекомендации</h3>
+      </section>
+    </main>
+  </div>
+
+  <div id="upload" style="display: none;">
+    <main>
+      <h2>Загрузить видео</h2>
+      <form>
+        <input type="file" name="video" accept="video/*"><br><br>
+        <input type="text" placeholder="Название видео"><br><br>
+        <textarea placeholder="Описание..."></textarea><br><br>
+        <label>
+          Приватность:
+          <select>
+            <option value="public">Публичное</option>
+            <option value="private">Приватное</option>
+          </select>
+        </label><br><br>
+        <button type="submit">Загрузить</button>
+      </form>
+      <canvas id="canvas-upload" width="640" height="200"></canvas>
+    </main>
+  </div>
+
+  <script>
+    function toggleLike() { console.log('Нравится'); }
+    function toggleDislike() { console.log('Не нравится'); }
+    function subscribe() { console.log('Подписка'); }
+
+    function showPage(page) {
+      const pages = ['home', 'watch', 'upload'];
+      pages.forEach(id => {
+        document.getElementById(id).style.display = (id === page) ? 'block' : 'none';
+      });
+    }
+
+    function handleHashChange() {
+      const hash = location.hash.replace('#', '') || 'home';
+      showPage(hash);
+    }
+
+    window.addEventListener('hashchange', handleHashChange);
+    window.addEventListener('load', handleHashChange);
+
+    const canvas = document.getElementById('canvas');
+    if (canvas) {
+      const ctx = canvas.getContext('2d');
+    }
+
+    const canvasHome = document.getElementById('canvas-home');
+    if (canvasHome) {
+      const ctxHome = canvasHome.getContext('2d');
+    }
+
+    const canvasUpload = document.getElementById('canvas-upload');
+    if (canvasUpload) {
+      const ctxUpload = canvasUpload.getContext('2d');
+    }
+  </script>
+</body>
+</html>
