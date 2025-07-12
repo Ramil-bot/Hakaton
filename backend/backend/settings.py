@@ -27,25 +27,45 @@ SECRET_KEY = 'django-insecure-cozbq1*k7bb1w&nh34p^_er_az#^quet283ir25z497xt+k00^
 DEBUG = True
 
 ALLOWED_HOSTS = []
-
 LOGGING = {
     'version': 1,
+    'disable_existing_loggers': False,  # Важно! Не отключаем существующие логгеры
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {process:d} {thread:d} {message}',
+            'style': '{',
+        },
+        'simple': {
+            'format': '{levelname} {message}',
+            'style': '{',
+        },
+    },
     'handlers': {
         'file': {
             'level': 'DEBUG',
             'class': 'logging.FileHandler',
             'filename': 'debug.log',
+            'formatter': 'verbose',
+        },
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple',
         },
     },
     'loggers': {
-        '': {
-            'handlers': ['file'],
+        '': {  # Корневой логгер (ловит все сообщения)
+            'handlers': ['file', 'console'],
             'level': 'DEBUG',
             'propagate': True,
-        }
+        },
+        'backend': {
+            'handlers': ['file', 'console'],
+            'level': 'DEBUG',
+            'propagate': False,  # Чтобы избежать дублирования
+        },
     },
 }
-
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",  # React
     "http://localhost:5173",  # Vue

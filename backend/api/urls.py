@@ -34,8 +34,8 @@ ffmpeg -i /home/ramil/Загрузки/9193185.mp4 -c:v libx264 -f hls output.m3
 
 
 
-curl -X POST http://localhost:8000/api/videos/ \
--H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzUyMzU5NzIzLCJpYXQiOjE3NTIyNzE4MjAsImp0aSI6IjQwMzA3MjQyZmQxMDRkYjZiMjU2ZDczNTc0MjI0NzgyIiwidXNlcl9pZCI6Mn0.BgNZYO28tVPvaqbkRLZoHmrSbr0TqsZKRQqhbkThgbk" \
+curl -o debug.log -X POST http://localhost:8000/api/videos/ \
+-H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzUyNDEyNTA1LCJpYXQiOjE3NTIzMjYxMDUsImp0aSI6ImI3ZDgxNjllYjFjMzQxYWM4MWVlZDA0YjMxZGM0OTFjIiwidXNlcl9pZCI6MX0.weVltpHiEmxw1EY0mP7r1_KDCeZ0otBYGQJmtJY_T7A" \
 -H "Content-Type: multipart/form-data" \
 -F "title=Testeo" \
 -F "original_file=@/home/ramil/Загрузки/9193185.mp4"
