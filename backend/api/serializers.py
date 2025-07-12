@@ -43,9 +43,15 @@ class VideoSerializer(serializers.ModelSerializer):
         return None
 
 class CommentSerializer(serializers.ModelSerializer):
-    user = UserSerializer(read_only=True)
-
     class Meta:
         model = Comment
-        fields = ['id', 'user', 'text', 'created_at']
-        read_only_fields = ['user']
+        fields = ['id', 'video', 'user', 'text', 'status', 'created_at']
+        read_only_fields = ['user', 'moderated_at', 'moderator']
+
+class CommentModerationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Comment
+        fields = ['id', 'status', 'moderator_notes']
+        extra_kwargs = {
+            'status': {'required': True},
+        }

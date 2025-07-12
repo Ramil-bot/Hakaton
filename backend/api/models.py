@@ -14,14 +14,15 @@ class Video(models.Model):
 	duration = models.FloatField(default=0)
 	created_at = models.DateTimeField(auto_now_add=True)
 
-class Comment(models.Model):
-	video = models.ForeignKey(Video, on_delete=models.CASCADE)
-	user = models.ForeignKey(User, on_delete=models.CASCADE)
-	text = models.TextField()
-	created_at = models.DateTimeField(auto_now_add=True)
+class Comment(models.Model):    
+    video = models.ForeignKey(Video, on_delete=models.CASCADE, related_name='comments')
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    text = models.TextField()
+    status = models.BooleanField(default = False)
+    created_at = models.DateTimeField(auto_now_add=True)
 
 class Rating(models.Model):
-	video = models.ForeignKey(Video, on_delete=models.CASCADE, related_name='comments')
+	video = models.ForeignKey(Video, on_delete=models.CASCADE, related_name='rating')
 	user = models.ForeignKey(User, on_delete=models.CASCADE)
 	value = models.IntegerField()
 

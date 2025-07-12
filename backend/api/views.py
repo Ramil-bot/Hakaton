@@ -56,13 +56,43 @@ class CommentViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticatedOrReadOnly]
 
     def get_queryset(self):
-        return Comment.objects.filter(video_id=self.kwargs['video_pk'])
+        return Comment.objects.filter(video_id=self.kwargs['video_pk', ])
 
     def perform_create(self, serializer):
         serializer.save(
             user=self.request.user,
             video_id=self.kwargs['video_pk']
         )
+
+
+
+class CommentViewSet(viewsets.ModelViewSet):
+    queryset = Comment.objects.all()
+    serializer_class = CommentSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        if self.request.query_params.get('moderation'):
+            if self.request.user.has_perm('api.moderate_comment'):
+                return qs.filter(status='pending')
+        return qs.filter(video=self.kwargs['video_pk'])
+
+    @action(detail=True, methods=['post'], permission_classes=[IsAuthenticatedOrReadOnly])
+    def moderate(self, request, pk=None):
+        comment = self.get_object()
+        serializer = CommentModerationSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        
+        if not request.user.has_perm('api.moderate_comment'):
+            return Response({'error': 'Нет прав на модерацию'}, status=403)
+
+        comment.status = serializer.validated_data['status']
+        comment.moderator = request.user
+        comment.moderated_at = timezone.now()
+        comment.save()
+        
+        return Response({'status': 'Статус обновлен'})
 
 # views.py
 
