@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SkillReel - Вход и Регистрация</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="auth-container">
+    <div class="auth-card">
+      <div class="auth-header">
+        <div class="auth-logo">SkillReel</div>
+        <p class="auth-subtitle">Образовательный видеохостинг</p>
+      </div>
+
+      <div class="auth-tabs">
+        <button class="auth-tab active" onclick="switchTab('login')">Вход</button>
+        <button class="auth-tab" onclick="switchTab('register')">Регистрация</button>
+      </div>
+
+      <!-- Форма входа -->
+      <div id="login-content" class="auth-content active">
+        <form class="auth-form" onsubmit="handleLogin(event)">
+          <div class="auth-form-group">
+            <label for="login-input">Email или имя пользователя</label>
+            <input type="text" id="login-input" name="login" required>
+            <div class="error-message" id="login-input-error"></div>
+          </div>
+      
+      
+      <div class="auth-form-group">
+        <label for="login-password">Пароль</label>
+        <input type="password" id="login-password" name="password" required>
+        <div class="error-message" id="login-password-error"></div>
+      </div>
+
+          <button type="submit" class="auth-submit" id="login-submit">
+            <div class="loading-spinner"></div>
+            <span>Войти</span>
+          </button>
+        </form>
+
+        <div class="auth-divider">
+          <span>или</span>
+        </div>
+
+        <div class="auth-link">
+          <a href="#" onclick="switchTab('register')">Нет аккаунта? Зарегистрируйтесь</a>
+        </div>
+      </div>
+
+      <!-- Форма регистрации -->
+      <div id="register-content" class="auth-content">
+        <form class="auth-form" onsubmit="handleRegister(event)">
+          <div class="auth-form-group">
+            <label for="register-username">Имя пользователя</label>
+            <input type="text" id="register-username" name="username" required>
+            <div class="error-message" id="register-username-error"></div>
+          </div>
+
+          <div class="auth-form-group">
+            <label for="register-email">Email</label>
+            <input type="email" id="register-email" name="email" required>
+            <div class="error-message" id="register-email-error"></div>
+          </div>
+
+          <div class="auth-form-group">
+            <label for="register-phone">Телефон</label>
+            <input type="tel" id="register-phone" name="phone" placeholder="+7 (___) ___-__-__" required>
+            <div class="error-message" id="register-phone-error"></div>
+          </div>
+
+          <div class="auth-form-group">
+            <label for="register-password">Пароль</label>
+            <input type="password" id="register-password" name="password" required>
+            <div class="error-message" id="register-password-error"></div>
+            <div class="password-requirements" id="password-requirements">
+              <ul>
+                <li id="length-req">Минимум 6 символов</li>
+                <li id="letter-req">Содержит буквы</li>
+                <li id="number-req">Содержит цифры</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="auth-form-group">
+            <label for="register-confirm-password">Подтвердите пароль</label>
+            <input type="password" id="register-confirm-password" name="confirmPassword" required>
+            <div class="error-message" id="register-confirm-password-error"></div>
+          </div>
+
+          <button type="submit" class="auth-submit" id="register-submit">
+            <div class="loading-spinner"></div>
+            <span>Зарегистрироваться</span>
+          </button>
+        </form>
+
+        <div class="auth-divider">
+          <span>или</span>
+        </div>
+
+        <div class="auth-link">
+          <a href="#" onclick="switchTab('login')">Уже есть аккаунт? Войти</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Переключение между вкладками
+    function switchTab(tab) {
+      // Убираем активный класс с кнопок
+      document.querySelectorAll('.auth-tab').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      
+      // Скрываем все формы
+      document.querySelectorAll('.auth-content').forEach(content => {
+        content.classList.remove('active');
+      });
+      
+      // Активируем выбранную вкладку
+      document.querySelector(`.auth-tab[onclick*="${tab}"]`).classList.add('active');
+      document.getElementById(`${tab}-content`).classList.add('active');
+      
+      // Очищаем ошибки
+      clearErrors();
+    }
+
+    // Очистка ошибок
+    function clearErrors() {
+      document.querySelectorAll('.error-message').forEach(error => {
+        error.classList.remove('show');
+        error.textContent = '';
+      });
+      
+      document.querySelectorAll('input').forEach(input => {
+        input.classList.remove('error', 'success');
+      });
+    }
+
+    // Показ ошибки
+    function showError(fieldId, message) {
+      const field = document.getElementById(fieldId);
+      const errorDiv = document.getElementById(fieldId + '-error');
+      
+      field.classList.add('error');
+      errorDiv.textContent = message;
+      errorDiv.classList.add('show');
+    }
+
+    // Показ успеха
+    function showSuccess(fieldId) {
+      const field = document.getElementById(fieldId);
+      field.classList.remove('error');
+      field.classList.add('success');
+    }
+
+    // Валидация email
+    function validateEmail(email) {
+      const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      return re.test(email);
+    }
+
+    // Валидация телефона
+    function validatePhone(phone) {
+      const re = /^[\+]?[1-9][\d]{0,15}$/;
+      return re.test(phone.replace(/\D/g, ''));
+    }
+
+    // Валидация пароля
+    function validatePassword(password) {
+      const requirements = {
+        length: password.length >= 6,
+        letter: /[a-zA-Zа-яА-Я]/.test(password),
+        number: /\d/.test(password)
+      };
+      
+      return requirements;
+    }
+
+    // Обновление требований к паролю
+    function updatePasswordRequirements(password) {
+      const requirements = validatePassword(password);
+      
+      document.getElementById('length-req').className = requirements.length ? 'valid' : '';
+      document.getElementById('letter-req').className = requirements.letter ? 'valid' : '';
+      document.getElementById('number-req').className = requirements.number ? 'valid' : '';
+    }
+
+    // Маска для телефона
+    function formatPhone(input) {
+      let value = input.value.replace(/\D/g, '');
+      if (value.startsWith('8')) {
+        value = '7' + value.slice(1);
+      }
+      if (value.startsWith('7')) {
+        value = value.slice(1);
+      }
+      
+      let formatted = '+7';
+      if (value.length > 0) {
+        formatted += ' (' + value.slice(0, 3);
+      }
+      if (value.length >= 4) {
+        formatted += ') ' + value.slice(3, 6);
+      }
+      if (value.length >= 7) {
+        formatted += '-' + value.slice(6, 8);
+      }
+      if (value.length >= 9) {
+        formatted += '-' + value.slice(8, 10);
+      }
+      
+      input.value = formatted;
+    }
+
+    // Обработчики событий
+    document.addEventListener('DOMContentLoaded', function() {
+      // Валидация пароля в реальном времени
+      const passwordInput = document.getElementById('register-password');
+      const passwordReq = document.getElementById('password-requirements');
+      
+      passwordInput.addEventListener('focus', function() {
+        passwordReq.classList.add('show');
+      });
+      
+      passwordInput.addEventListener('input', function() {
+        updatePasswordRequirements(this.value);
+      });
+      
+      passwordInput.addEventListener('blur', function() {
+        if (this.value.length === 0) {
+          passwordReq.classList.remove('show');
+        }
+      });
+      
+      // Маска для телефона
+      const phoneInput = document.getElementById('register-phone');
+      phoneInput.addEventListener('input', function() {
+        formatPhone(this);
+      });
+    });
+  </script>
+  <script src="auth.js"></script>
+</body>
+</html>

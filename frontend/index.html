@@ -1,13 +1,136 @@
 <!DOCTYPE html>
-<html lang="">
+<html lang="ru">
   <head>
-    <meta charset="UTF-8">
-    <link rel="icon" href="/favicon.ico">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vite App</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SkillReel - Образовательный видеохостинг</title>
+    <link rel="stylesheet" href="styles.css" />
+    <!-- Video.js CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/video.js/8.6.1/video-js.css" rel="stylesheet">
+    <!-- Custom Video Player CSS -->
+    <link rel="stylesheet" href="video-player.css" />
   </head>
   <body>
-    <div id="app"></div>
-    <script type="module" src="/src/main.js"></script>
+    <nav class="navbar">
+      <button class="hamburger" onclick="toggleMenu()">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+      <a class="logo" href="#">SkillReel</a>
+      <div class="search-container">
+        <input type="search" placeholder="Введите запрос" />
+      </div>
+      <div class="dropdown-menu" id="dropdownMenu">
+        <a href="#" onclick="showPage('home'); return false;">Главная</a>
+        <a href="#" onclick="showPage('watch'); return false;">Смотреть</a>
+        <a href="#" onclick="showPage('upload'); return false;">Загрузить</a>
+        <a class="profile-link" href="#profile">Профиль</a>
+      </div>
+    </nav>
+
+    <div class="content">
+      <div id="home">
+        <header>
+          <h1>Добро пожаловать в SkillReel</h1>
+        </header>
+        <main>
+          <section id="recommended">
+            <h2>Список видео</h2>
+            <div id="search-results" style="display: none;"></div>
+            <div class="video-grid" id="videoGrid">
+              <!-- Видео будут загружены динамически через бекэнд -->
+            </div>
+          </section>
+        </main>
+      </div>
+
+      <div id="upload" style="display: none;">
+        <main>
+          <h2 class="section-title">Загрузить видео</h2>
+          <form id="uploadForm">
+            <input type="file" name="video" accept="video/*" required />
+            <input type="text" name="title" placeholder="Название видео" required />
+            <div class="textarea-container">
+              <textarea id="description" name="description" placeholder="Описание..." maxlength="3000"></textarea>
+              <div class="char-counter">
+                <span id="charCount">0</span>/3000
+              </div>
+            </div>
+            <button type="submit">Загрузить</button>
+          </form>
+        </main>
+      </div>
+
+      <div id="profile" style="display: none;">
+        <main>
+          <div class="profile-header">
+            <div class="profile-avatar">
+              <div class="avatar-placeholder">👤</div>
+            </div>
+            <div class="profile-info">
+              <h2 id="username">Пользователь123</h2>
+              <p class="join-date">Дата регистрации: 15 января 2024</p>
+            </div>
+          </div>
+        </main>
+      </div>
+
+      <div id="watch" style="display: none;">
+        <main>
+          <div class="watch-container">
+            <div class="watch-layout">
+              <div class="watch-main">
+                <div class="video-player-container">
+                  <video
+                    id="video-player"
+                    class="video-js vjs-default-skin"
+                    controls
+                    preload="auto"
+                    width="100%"
+                    height="400"
+                    data-setup='{}'
+                  >
+                    <p class="vjs-no-js">
+                      Для просмотра видео необходимо включить JavaScript, и рассмотрите возможность обновления до
+                      <a href="https://videojs.com/html5-video-support/" target="_blank">
+                        браузера, который поддерживает HTML5 видео
+                      </a>.
+                    </p>
+                  </video>
+                </div>
+                <div class="video-details">
+                  <h2 id="video-title">Название видео</h2>
+                  <div class="video-meta">
+                    <span id="video-views">0 просмотров</span>
+                    <span id="video-date">Дата загрузки</span>
+                  </div>
+                  <div class="like-dislike-container" style="margin-top: 1rem; margin-left: auto; width: fit-content;">
+                    <button id="like-btn" onclick="toggleLike()">👍 <span id="like-count">0</span></button>
+                    <button id="dislike-btn" onclick="toggleDislike()">👎 <span id="dislike-count">0</span></button>
+                  </div>
+                </div>
+                <div class="description-section">
+                  <h3>Описание</h3>
+                  <p id="video-description">Описание...</p>
+                </div>
+                <div class="comment-container">
+                  <h3>Комментарии</h3>
+                  <div id="comment-list" style="max-height: 250px; overflow-y: auto; border: 1px solid #ccc; padding: 10px; margin-bottom: 10px;"></div>
+                  <div class="comment-form">
+                    <textarea id="comment-input" placeholder="Напишите комментарий..." rows="3" style="width: 100%; resize: vertical;"></textarea>
+                    <button id="submit-comment" type="button">Отправить</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+
+    <!-- Video.js JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/video.js/8.6.1/video.min.js"></script>
+    <script src="script.js"></script>
   </body>
 </html>
