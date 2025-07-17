@@ -27,3 +27,16 @@ npm run dev
 ```sh
 npm run build
 ```
+
+# Backend 
+Как запустить локально?
+
+```sh
+python manage.py runserver
+```
+
+Как запустить совместно с докер?
+
+```sh
+sudo django-compose exec web python manage.py runserver
+```

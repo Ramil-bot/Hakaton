@@ -1,0 +1,183 @@
+/* Кастомные стили для Video.js под цвет логотипа сайта */
+.video-js {
+  font-family: 'Arial', sans-serif;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.video-js .vjs-big-play-button {
+  background-color: rgba(52, 152, 219, 0.8);
+  border: none;
+  border-radius: 50%;
+  width: 80px;
+  height: 80px;
+  font-size: 2.5rem;
+  transition: all 0.3s ease;
+}
+
+.video-js .vjs-big-play-button:hover {
+  background-color: rgba(52, 152, 219, 1);
+  transform: scale(1.1);
+}
+
+.video-js .vjs-control-bar {
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
+  height: 50px;
+}
+
+.video-js .vjs-button > .vjs-icon-placeholder:before {
+  color: #ffffff;
+}
+
+.video-js .vjs-progress-control .vjs-progress-holder {
+  height: 6px;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 3px;
+}
+
+.video-js .vjs-progress-control .vjs-play-progress {
+  background: #3498db;
+  border-radius: 3px;
+}
+
+.video-js .vjs-progress-control .vjs-load-progress {
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 3px;
+}
+
+.video-js .vjs-volume-panel .vjs-volume-control {
+  background: rgba(0, 0, 0, 0.7);
+  border-radius: 4px;
+}
+
+.video-js .vjs-volume-bar {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 2px;
+}
+
+.video-js .vjs-volume-level {
+  background: #3498db;
+  border-radius: 2px;
+}
+
+.video-js .vjs-menu-button-popup .vjs-menu {
+  background: rgba(0, 0, 0, 0.9);
+  border: 1px solid #3498db;
+  border-radius: 4px;
+}
+
+.video-js .vjs-menu-button-popup .vjs-menu .vjs-menu-item {
+  padding: 8px 16px;
+  color: #ffffff;
+  transition: background-color 0.2s;
+}
+
+.video-js .vjs-menu-button-popup .vjs-menu .vjs-menu-item:hover {
+  background-color: #3498db;
+}
+
+.video-js .vjs-menu-button-popup .vjs-menu .vjs-menu-item.vjs-selected {
+  background-color: #2980b9;
+}
+
+.video-js .vjs-time-control {
+  color: #ffffff;
+  font-weight: bold;
+}
+
+.video-js .vjs-fullscreen-control .vjs-icon-placeholder:before {
+  font-size: 1.5rem;
+}
+
+.video-js .vjs-playback-rate .vjs-playback-rate-value {
+  color: #ffffff;
+  font-size: 1.2rem;
+}
+
+/* Анимация для кнопок */
+.video-js .vjs-button {
+  transition: all 0.3s ease;
+}
+
+.video-js .vjs-button:hover {
+  transform: scale(1.1);
+}
+
+/* Стили для меню качества */
+.vjs-quality-selector .vjs-menu-button-popup .vjs-menu {
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.vjs-quality-selector .vjs-menu-item {
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+/* Стилизация под цвет логотипа */
+.video-js .vjs-play-control .vjs-icon-placeholder:before {
+  color: #3498db;
+}
+
+.video-js .vjs-play-control:hover .vjs-icon-placeholder:before {
+  color: #2980b9;
+}
+
+.video-js .vjs-big-play-button .vjs-icon-placeholder:before {
+  color: #ffffff;
+}
+
+/* Кнопка воспроизведения в панели управления */
+.video-js .vjs-play-control {
+  background: linear-gradient(135deg, #3498db, #2980b9);
+  border-radius: 4px;
+  margin-right: 5px;
+}
+
+.video-js .vjs-play-control:hover {
+  background: linear-gradient(135deg, #2980b9, #3498db);
+}
+
+/* Активные элементы управления */
+.video-js .vjs-button.vjs-selected {
+  background-color: #3498db;
+  border-radius: 4px;
+}
+
+.video-js .vjs-button.vjs-selected:hover {
+  background-color: #2980b9;
+}
+
+/* Стили для ползунка времени */
+.video-js .vjs-progress-control .vjs-play-progress:before {
+  background-color: #3498db;
+  border-radius: 50%;
+  box-shadow: 0 0 8px rgba(52, 152, 219, 0.6);
+}
+
+/* Стили для ползунка громкости */
+.video-js .vjs-volume-control .vjs-volume-level:before {
+  background-color: #3498db;
+  border-radius: 50%;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+  .video-js .vjs-big-play-button {
+    width: 60px;
+    height: 60px;
+    font-size: 2rem;
+  }
+  
+  .video-js .vjs-control-bar {
+    height: 40px;
+  }
+  
+  .video-js .vjs-time-control {
+    font-size: 0.9rem;
+  }
+  
+  .video-js .vjs-play-control {
+    margin-right: 3px;
+  }
+}
