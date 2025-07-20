@@ -9,6 +9,7 @@ from .models import Video, Comment, Rating
 from .serializers import VideoSerializer, CommentSerializer
 from .permissions import IsOwnerOrReadOnly
 from rest_framework.parsers import MultiPartParser
+from rest_framework_simplejwt.tokens import RefreshToken
 from .pagination import CustomPagination
 from .tasks import transcode_to_hls
 
@@ -63,9 +64,7 @@ class CommentViewSet(viewsets.ModelViewSet):
             user=self.request.user,
             video_id=self.kwargs['video_pk']
         )
-
-
-
+        
 class CommentViewSet(viewsets.ModelViewSet):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
@@ -94,25 +93,38 @@ class CommentViewSet(viewsets.ModelViewSet):
         
         return Response({'status': 'Статус обновлен'})
 
-# views.py
-
-
-User = get_user_model()
 
 class RegisterView(APIView):
+    User = get_user_model()
     def post(self, request):
         username = request.data.get('username')
         password = request.data.get('password')
         email = request.data.get('email', '')
 
-        if User.objects.filter(username=username).exists():
+        if not username or not password:
+            return Response(
+                {"error": "Требуется имя пользователя и пароль"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        if self.User.objects.filter(username=username).exists():
             return Response({"error": "Username already exists"}, status=status.HTTP_400_BAD_REQUEST)
 
-        user = User.objects.create_user(
+        if email != '' and (email and self.User.objects.filter(email=email).exists()):
+            return Response(
+                {"error": "Email уже используется"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        user = self.User.objects.create_user(
             username=username,
             password=password,
             email=email,
             is_active=True  # Убедитесь, что пользователь активен
         )
 
-        return Response({"success": "User created successfully"}, status=status.HTTP_201_CREATED)
+        if not user.is_authenticated:
+            return Response({"error": "Username already exists"}, status=status.HTTP_400_BAD_REQUEST)
+        Refresh = RefreshToken.for_user(user)
+
+        return Response({"success": "User created successfully", 'refresh':str(Refresh), 'access': str(Refresh.access_token)}, status=status.HTTP_201_CREATED)
