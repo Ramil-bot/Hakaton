@@ -5,13 +5,17 @@ from rest_framework.views import APIView
 from django.contrib.auth import get_user_model
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from django_filters.rest_framework import DjangoFilterBackend
-from .models import Video, Comment, Rating
+from .models import Video, Comment, Rating, VideoAccess
 from .serializers import VideoSerializer, CommentSerializer
 from .permissions import IsOwnerOrReadOnly
 from rest_framework.parsers import MultiPartParser
 from rest_framework_simplejwt.tokens import RefreshToken
 from .pagination import CustomPagination
 from .tasks import transcode_to_hls
+from django.http import HttpResponse
+from datetime import datetime, timedelta
+import jwt
+
 
 class VideoViewSet(viewsets.ModelViewSet):
     parser_classes = [MultiPartParser]
@@ -38,19 +42,13 @@ class VideoViewSet(viewsets.ModelViewSet):
 
     def create(self, request, *args, **kwargs):
         response = super().create(request, *args, **kwargs)
+        
         # В ответе будет ID видео, по которому можно проверять статус
         return response
 
     def perform_create(self, serializer):
         video = serializer.save(owner=self.request.user)
-        
-        # Сохраняем оригинальный файл
-        # print(self.request.FILES.keys())
-        # video_file = self.request.FILES['original_file']
-        # file_path = default_storage.save(f'originals/{video.id}_{video_file.name}', video_file)
-        
-        # Запускаем асинхронную обработку
-        transcode_to_hls.delay(video.id)
+        transcode_to_hls.delay(video.id, video.iv)
 
 class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
@@ -64,7 +62,7 @@ class CommentViewSet(viewsets.ModelViewSet):
             user=self.request.user,
             video_id=self.kwargs['video_pk']
         )
-        
+
 class CommentViewSet(viewsets.ModelViewSet):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
@@ -128,3 +126,28 @@ class RegisterView(APIView):
         Refresh = RefreshToken.for_user(user)
 
         return Response({"success": "User created successfully", 'refresh':str(Refresh), 'access': str(Refresh.access_token)}, status=status.HTTP_201_CREATED)
+
+class VideoKeyAPI(APIView):
+    def get(self, request, video_id):
+        # Проверяем JWT из заголовка
+        token = request.headers.get("Authorization", "").split("Bearer ")[-1]
+        try:
+            payload = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
+            user_id = payload["user_id"]
+            
+            # Проверяем доступ
+            if not VideoAccess.objects.filter(
+                user_id=user_id, 
+                video_id=video_id,
+                expires_at__gte=datetime.now()
+            ).exists():
+                return Response(status=status.HTTP_403_FORBIDDEN)
+
+            # Отдаём ключ
+            video = Video.objects.get(id=video_id)
+            response = HttpResponse(video.encrypted_key, content_type="application/octet-stream")
+            response["X-IV"] = video.iv.hex()  # Вектор инициализации
+            return response
+
+        except (jwt.ExpiredSignatureError, jwt.InvalidTokenError):
+            return Response(status=status.HTTP_401_UNAUTHORIZED)

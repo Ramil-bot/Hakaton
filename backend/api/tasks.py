@@ -9,6 +9,7 @@ from django.core.files.storage import default_storage
 from django.dispatch import receiver
 from django.db.models.signals import post_save
 from django.conf import settings
+from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 
 from .models import Video
 
@@ -22,15 +23,13 @@ def save_temp_file(video):
             with default_storage.open(video.original_file.name, 'rb') as original:
                 for chunk in original.chunks():
                     temp_file.write(chunk)
-                logger.info(f"HLS ")
-                print(f"HLS ")
             return temp_path
     except Exception as e:
         logger.error(f"Ошибка: {str(e)}")
         raise
 
 @shared_task
-def transcode_to_hls(path):
+def transcode_to_hls(path, key, iv):
     video = Video.objects.get(id=path)
  
     temp_path = save_temp_file(video)
@@ -41,9 +40,9 @@ def transcode_to_hls(path):
     
     logger.info(f"HLS загружен в: {output_dir}")
 
-    # cmd = f""" ffmpeg -i {temp_path} -c:v libx264 -crf 23 -preset fast -c:a aac -b:a 128k -f hls -hls_time 10 -hls_playlist_type vod {output_path}"""
-    # subprocess.run(cmd, shell=True, check=True, capture_output=True,
-    # text=True)
+    cmd = f""" ffmpeg -i {temp_path} -c:v libx264 -crf 23 -preset fast -c:a aac -b:a 128k -f hls -hls_time 10 -hls_key_info_file <(echo 'http://127.0.0.1:8000/api/videos/key/{video.id}") -hls_playlist_type vod {output_path}"""
+    subprocess.run(cmd, shell=True, check=True, capture_output=True,
+    text=True)
 
     # 3. Загружаем HLS обратно в облако CDN
     django_output_path = f"hls/{video.id}/"
