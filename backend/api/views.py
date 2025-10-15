@@ -5,17 +5,23 @@ from rest_framework.views import APIView
 from django.contrib.auth import get_user_model
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from django_filters.rest_framework import DjangoFilterBackend
-from .models import Video, Comment, Rating, VideoAccess
-from .serializers import VideoSerializer, CommentSerializer
+from .models import Video, Comment, Rating, VideoAccess, Channel
+from .serializers import VideoSerializer, CommentSerializer,  ChannelSerializer
 from .permissions import IsOwnerOrReadOnly
 from rest_framework.parsers import MultiPartParser
 from rest_framework_simplejwt.tokens import RefreshToken
 from .pagination import CustomPagination
 from .tasks import transcode_to_hls
+from rest_framework import generics
 from django.http import HttpResponse
 from datetime import datetime, timedelta
+from django.conf import settings
 import jwt
 
+class ChannelDetailView(generics.RetrieveAPIView):
+    queryset = Channel.objects.all()
+    serializer_class = ChannelSerializer
+    lookup_field = 'slug'
 
 class VideoViewSet(viewsets.ModelViewSet):
     parser_classes = [MultiPartParser]
@@ -132,7 +138,7 @@ class VideoKeyAPI(APIView):
         # Проверяем JWT из заголовка
         token = request.headers.get("Authorization", "").split("Bearer ")[-1]
         try:
-            payload = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
+            payload = jwt.decode(token, settings.SECRET_KEY, algorithms=["HS256"])
             user_id = payload["user_id"]
             
             # Проверяем доступ

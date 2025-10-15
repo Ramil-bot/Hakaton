@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Video, Comment, Rating
+from .models import Video, Comment, Rating, Channel
 from django.contrib.auth import get_user_model
 
 User = get_user_model()
@@ -41,6 +41,17 @@ class VideoSerializer(serializers.ModelSerializer):
         if obj.hls_path:
             return default_storage.url(obj.hls_path)
         return None
+
+class ChannelSerializer(serializers.ModelSerializer):
+    videos = VideoSerializer(many=True, read_only=True)
+    subscriber_count = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Channel
+        fields = ['id', 'name', 'slug', 'description', 'avatar', 'banner', 'subscriber_count', 'videos']
+
+    def get_subscriber_count(self, obj):
+        return obj.subscribers.count()
 
 class CommentSerializer(serializers.ModelSerializer):
     class Meta:

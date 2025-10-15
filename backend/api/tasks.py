@@ -28,6 +28,12 @@ def save_temp_file(video):
         logger.error(f"Ошибка: {str(e)}")
         raise
 
+# How it work?
+'''
+Transcode to hls 
+Input: key -> ; iv ->
+'''
+
 @shared_task
 def transcode_to_hls(path, key, iv):
     video = Video.objects.get(id=path)

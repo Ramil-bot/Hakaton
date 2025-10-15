@@ -1,17 +1,19 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
-from .views import VideoViewSet, CommentViewSet, RegisterView
+from .views import VideoViewSet, CommentViewSet, RegisterView, ChannelDetailView
 
 router = DefaultRouter()
 router.register(r'videos', VideoViewSet, basename='video')
 router.register(r'videos/(?P<video_pk>\d+)/comments', CommentViewSet, basename='comment')
+
 
 # urls.py
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 
 urlpatterns = [
     path('', include(router.urls)),
+    path('channels/<slug:slug>/', ChannelDetailView.as_view(), name='channel'),
     path('token/login/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('token/register/', RegisterView.as_view(), name='register'),

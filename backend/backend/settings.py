@@ -26,6 +26,13 @@ SECRET_KEY = 'django-insecure-cozbq1*k7bb1w&nh34p^_er_az#^quet283ir25z497xt+k00^
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
+CORS_ALLOWED_ORIGINS = [
+    "https://frontend.example.com",
+    "http://localhost:8080",  # Для разработки
+]
+
+CORS_ALLOW_CREDENTIALS = True
+
 ALLOWED_HOSTS = []
 LOGGING = {
     'version': 1,
@@ -98,6 +105,8 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'corsheaders.middleware.CorsMiddleware',  # Должен быть как можно выше
+    'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
