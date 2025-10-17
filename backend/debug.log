@@ -1,0 +1,15 @@
+INFO 2025-07-17 13:41:33,234 autoreload 9500 14372 Watching for file changes with StatReloader
+INFO 2025-07-17 13:42:54,410 autoreload 12560 5968 Watching for file changes with StatReloader
+INFO 2025-07-17 13:45:24,752 autoreload 8040 18192 Watching for file changes with StatReloader
+INFO 2025-07-17 13:46:37,434 autoreload 7284 12064 Watching for file changes with StatReloader
+INFO 2025-07-17 13:47:31,065 autoreload 15056 3748 Watching for file changes with StatReloader
+INFO 2025-07-17 13:48:49,909 autoreload 14052 16740 Watching for file changes with StatReloader
+INFO 2025-07-17 13:50:38,755 autoreload 296 13032 Watching for file changes with StatReloader
+INFO 2025-07-17 13:53:52,962 autoreload 12280 16036 Watching for file changes with StatReloader
+WARNING 2025-07-17 13:54:15,343 log 12280 11384 Not Found: /
+WARNING 2025-07-17 13:54:15,474 log 12280 11384 Not Found: /favicon.ico/
+WARNING 2025-07-17 14:09:38,672 log 12280 3228 Not Found: /token/
+WARNING 2025-07-17 14:09:41,819 log 12280 3228 Not Found: /token/
+WARNING 2025-07-17 14:10:02,815 log 12280 3228 Not Found: /token/register/
+WARNING 2025-07-17 14:47:13,045 log 12280 12420 Not Found: /media/${videoData.hls_path}
+WARNING 2025-07-17 14:47:13,173 log 12280 12420 Not Found: /favicon.ico/

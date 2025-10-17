@@ -65,6 +65,13 @@ function loadVideos(searchQuery = '') {
     });
 }
 
+function logout() {
+  localStorage.removeItem('accessToken');
+  localStorage.removeItem('userId');
+  location.reload(); // перезагрузка страницы
+}
+
+
 function highlightSearchTerm(text, searchQuery) {
   if (!searchQuery) return text;
   
@@ -152,18 +159,44 @@ function initializeVideoPlayer() {
     player.dispose();
   }
 
-  player = videojs('video-player', {
-    responsive: true,
-    fluid: true,
-    playbackRates: [0.5, 0.75, 1, 1.25, 1.5, 1.75, 2],
-    plugins: {
-      hotkeys: {
-        volumeStep: 0.1,
-        seekStep: 5,
-        enableModifiersForNumbers: false
+      player = videojs('video-player', {
+      responsive: true,
+      fluid: true,
+      controls: true,
+      preload: 'auto',
+      playbackRates: [0.5, 0.75, 1, 1.25, 1.5, 1.75, 2],
+      controlBar: {
+        playToggle: true,
+        currentTimeDisplay: true,
+        timeDivider: true,
+        durationDisplay: true,
+        progressControl: true,
+        volumePanel: { inline: false },
+        remainingTimeDisplay: false,
+        fullscreenToggle: true
+      },
+      plugins: {
+        hotkeys: { volumeStep: 0.1, seekStep: 5, enableModifiersForNumbers: false }
       }
-    }
-  });
+    });
+
+    player.ready(function () {
+      // чтобы хоткеи работали
+      player.el().setAttribute('tabindex', '0');
+      player.el().focus();
+
+      // твой селектор качества
+      player.controlBar.addChild('QualitySelector');
+
+      // клик по видео = play/pause (как было)
+      const videoElement = player.el().querySelector('video');
+      videoElement.addEventListener('click', function () {
+        if (player.paused()) player.play(); else player.pause();
+      });
+    });
+
+
+  
 
   // Добавляем обработчик для паузы при клике на плеер
   player.ready(function() {
@@ -177,48 +210,8 @@ function initializeVideoPlayer() {
         player.pause();
       }
     });
-    
-    // Настройка горячих клавиш
-    player.on('keydown', function(e) {
-      switch(e.which) {
-        case 32: // Spacebar
-          e.preventDefault();
-          if (player.paused()) {
-            player.play();
-          } else {
-            player.pause();
-          }
-          break;
-        case 37: // Left arrow
-          e.preventDefault();
-          player.currentTime(Math.max(0, player.currentTime() - 10));
-          break;
-        case 39: // Right arrow
-          e.preventDefault();
-          player.currentTime(Math.min(player.duration(), player.currentTime() + 10));
-          break;
-        case 38: // Up arrow
-          e.preventDefault();
-          player.volume(Math.min(1, player.volume() + 0.1));
-          break;
-        case 40: // Down arrow
-          e.preventDefault();
-          player.volume(Math.max(0, player.volume() - 0.1));
-          break;
-        case 70: // F key
-          e.preventDefault();
-          if (player.isFullscreen()) {
-            player.exitFullscreen();
-          } else {
-            player.requestFullscreen();
-          }
-          break;
-        case 77: // M key
-          e.preventDefault();
-          player.muted(!player.muted());
-          break;
-      }
-    });
+
+    player.controlBar.addChild('QualitySelector');
   });
 
   return player;
@@ -512,7 +505,7 @@ function watchVideo(videoId) {
   loadVideoDetails(videoId);
 }
 
-// Остальные функции без изменений
+
 function formatViews(views) {
   if (views >= 1000000) {
     return (views / 1000000).toFixed(1) + 'M';
@@ -610,13 +603,22 @@ function handleHashChange() {
 
 // Инициализация
 function initializeApp() {
-  // Устанавливаем временный userId для демонстрации
-  if (!localStorage.getItem('userId')) {
-    localStorage.setItem('userId', '1');
-  }
   
   handleHashChange();
   initializeSearch();
+
+  const loginBtn = document.getElementById('login-btn');
+  const logoutBtn = document.getElementById('logout-btn');
+  const isLoggedIn = !!localStorage.getItem('accessToken');
+
+  if (isLoggedIn) {
+    loginBtn.style.display = 'none';
+    logoutBtn.style.display = 'inline-block';
+  } else {
+    loginBtn.style.display = 'inline-block';
+    logoutBtn.style.display = 'none';
+  }
+
 
   const commentButton = document.getElementById('submit-comment');
   if (commentButton) {
@@ -678,6 +680,7 @@ document.addEventListener('click', function(event) {
     event.target.style.display = 'none';
   }
 });
+
 
 window.addEventListener('hashchange', handleHashChange);
 window.addEventListener('load', initializeApp);

@@ -926,3 +926,10 @@ form textarea {
 .section-title {
   margin-left: 25.5rem;
 }
+
+.auth-buttons {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
