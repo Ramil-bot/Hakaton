@@ -38,10 +38,10 @@ function loadVideos(searchQuery = '') {
         const card = document.createElement('div');
         card.className = 'video-card';
         card.onclick = () => watchVideo(video.id);
-        
+        console.log(formatDate(video.created_at), formatViews(video.views_count));
         card.innerHTML = `
           <div class="video-thumbnail-large">
-            📹
+            <image src="${video.thumbnail}"/>
             <div class="video-duration">${video.duration || '00:00'}</div>
           </div>
           <div class="video-info">
@@ -281,6 +281,65 @@ function addVideoSources(videoData) {
   return sources;
 }
 
+function setupVideoPlayerWithHLS(videoPlayer, hlsUrl, thumbnail, videoId) {
+  return new Promise((resolve, reject) => {
+    videoPlayer.ready(() => {
+      console.log('🎬 Настройка видеоплеера...');
+      
+      // Обработчики событий
+      videoPlayer.on('loadedmetadata', () => {
+        console.log('✅ Метаданные видео загружены');
+      });
+      
+      videoPlayer.on('loadstart', () => {
+        console.log('🔄 Начало загрузки видео');
+      });
+      
+      videoPlayer.on('loadeddata', () => {
+        console.log('✅ Данные видео загружены');
+        resolve(videoPlayer);
+      });
+      
+      videoPlayer.on('error', (e) => {
+        const error = videoPlayer.error();
+        console.error('❌ Ошибка Video.js:', error);
+        
+        // Детальный анализ ошибки
+        analyzeVideoError(error, videoPlayer, hlsUrl, videoId);
+        reject(error);
+      });
+      
+      videoPlayer.on('canplay', () => {
+        console.log('▶️ Видео готово к воспроизведению');
+      });
+      
+      // Устанавливаем постер
+      // if (thumbnail) {
+      //   const thumbnailUrl = getFullThumbnailUrl(thumbnail);
+      //   console.log('🖼️ Устанавливаем постер:', thumbnailUrl);
+      //   videoPlayer.poster(thumbnailUrl);
+      // }
+      
+      // Устанавливаем источник
+      console.log('🔧 Устанавливаем HLS источник:', hlsUrl);
+      
+      videoPlayer.src({
+        src: hlsUrl,
+        type: 'application/x-mpegURL',
+        withCredentials: false
+      });
+      
+      // Пытаемся воспроизвести
+      setTimeout(() => {
+        videoPlayer.play().catch(playError => {
+          console.log('⏸️ Автовоспроизведение заблокировано:', playError.message);
+          // Это нормально, не считаем ошибкой
+        });
+      }, 1000);
+    });
+  });
+}
+
 function loadVideoDetails(videoId) {
   fetch(`http://localhost:8000/api/videos/${videoId}/`)
     .then(response => response.json())
@@ -295,38 +354,46 @@ function loadVideoDetails(videoId) {
       const videoPlayer = initializeVideoPlayer();
       
       // Добавляем источники видео
-      const sources = addVideoSources(video);
+      // console.error('/media/' + video.hls_path);
+      
+      
       
       // Настраиваем плеер
-      videoPlayer.ready(function() {
-        // Устанавливаем источники
-        videoPlayer.src(sources);
+      // videoPlayer.ready(function() {
+      //   // Устанавливаем источники
+      //   videoPlayer.src(sources);
         
-        // Настраиваем poster (превью) если доступно
-        if (video.thumbnail) {
-          videoPlayer.poster(`http://localhost:8000/media/${video.thumbnail}`);
-        }
+      //   // Настраиваем poster (превью) если доступно
+      //   if (video.thumbnail) {
+      //     videoPlayer.poster(`http://localhost:8000/media/${video.thumbnail}`);
+      //   }
         
-        // Автоматически начинаем воспроизведение
-        videoPlayer.play().catch(error => {
-          console.log('Автовоспроизведение заблокировано:', error);
-        });
-      });
+      //   // Автоматически начинаем воспроизведение
+      //   videoPlayer.play().catch(error => {
+      //     console.log('Автовоспроизведение заблокировано:', error);
+      //   });
+      try {
+        setupVideoPlayerWithHLS(videoPlayer, "http://localhost:8000/media/" + video.hls_path, video.thumbnail, videoId);
+        console.log('✅ Видеоплеер успешно настроен');
+      } catch (playerError) {
+      console.error('❌ Ошибка настройки плеера:', playerError);
+      }
+    });
       
       currentVideoId = videoId;
       
-      // Загружаем лайки/дизлайки
-      loadRatings(videoId);
+    //   // Загружаем лайки/дизлайки
+    //   loadRatings(videoId);
 
-      // Загружаем комментарии
-      loadComments(videoId);
+    //   // Загружаем комментарии
+    //   loadComments(videoId);
       
-      // Увеличиваем счетчик просмотров
-      incrementViews(videoId);
-    })
-    .catch(error => {
-      console.error('Ошибка загрузки видео:', error);
-    });
+    //   // Увеличиваем счетчик просмотров
+    //   incrementViews(videoId);
+    // })
+    // .catch(error => {
+    //   console.error('Ошибка загрузки видео:', error);
+    // });
 }
 
 function loadRatings(videoId) {
@@ -482,8 +549,23 @@ function loadUserProfile() {
 // Функции для загрузки видео
 function uploadVideo() {
   const form = document.getElementById('uploadForm');
-  const formData = new FormData(form);
+  const formData = new FormData(form); // 'this' ссылается на форму
 
+    // Перебираем пары ключ-значение
+  formData.forEach((value, key) => {
+      console.log(`Имя: ${key}, Значение: ${value}`);
+  });
+
+  var DataTest = {
+    method: 'POST',
+    headers: {
+      'Authorization': 'Bearer ' + localStorage.getItem('accessToken')
+    },
+    body: formData
+  };
+  console.log(DataTest);
+   
+    
   fetch('http://localhost:8000/api/videos/', {
     method: 'POST',
     headers: {
@@ -648,7 +730,7 @@ function initializeApp() {
   }
 
   // Добавляем обработчик для формы загрузки
-  const uploadForm = document.querySelector('#upload form');
+  const uploadForm = document.querySelector('#uploadForm');
   if (uploadForm) {
     uploadForm.addEventListener('submit', function(e) {
       e.preventDefault();

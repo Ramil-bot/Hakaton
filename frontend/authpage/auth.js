@@ -23,10 +23,10 @@ function handleLogin(event) {
   const submitBtn = document.getElementById('login-submit');
   submitBtn.classList.add('loading');
 
-  fetch('http://localhost:8000/token/', {
+  fetch('http://localhost:8000/api/token/login/', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ username: login, password })
+    body: JSON.stringify({ username: login, password: password })
   })
     .then(res => res.json())
     .then(data => {
@@ -37,7 +37,7 @@ function handleLogin(event) {
         const payload = JSON.parse(atob(data.access.split('.')[1]));
         localStorage.setItem('userId', payload.user_id);
 
-        window.location.href = 'skelet.html';
+        window.location.href = '/';
       } else {
         showError('login-password', 'Неверные данные');
       }
@@ -84,16 +84,7 @@ function handleRegister(event) {
     showSuccess('register-email');
   }
 
-  // Валидация телефона
-  if (!phone.trim()) {
-    showError('register-phone', 'Поле обязательно для заполнения');
-    isValid = false;
-  } else if (!validatePhone(phone)) {
-    showError('register-phone', 'Введите корректный номер телефона');
-    isValid = false;
-  } else {
-    showSuccess('register-phone');
-  }
+
 
   // Валидация пароля
   const passwordReq = validatePassword(password);
@@ -123,19 +114,18 @@ function handleRegister(event) {
   const submitBtn = document.getElementById('register-submit');
   submitBtn.classList.add('loading');
 
-  fetch('http://localhost:8000/token/register/', {
+  fetch('http://localhost:8000/api/token/register/', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
       username,
       email,
-      phone_number: phone,
       password
     })
   })
     .then(res => res.json())
     .then(data => {
-      if (data.username) {
+      if (data.success) {
         alert('Регистрация успешна, теперь войдите');
         switchTab('login');
       } else {

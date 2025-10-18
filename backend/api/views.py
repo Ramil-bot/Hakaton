@@ -52,10 +52,6 @@ class VideoViewSet(viewsets.ModelViewSet):
         # В ответе будет ID видео, по которому можно проверять статус
         return response
 
-    def perform_create(self, serializer):
-        video = serializer.save(owner=self.request.user)
-        transcode_to_hls.delay(video.id, video.iv)
-
 class CommentViewSet(viewsets.ModelViewSet):
     serializer_class = CommentSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]

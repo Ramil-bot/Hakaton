@@ -1,4 +1,8 @@
 /* Стили для страницы авторизации */
+html, body {
+  margin:0;
+  padding: 0;
+}
 .auth-container {
   display: flex;
   justify-content: center;

@@ -30,7 +30,7 @@ class Channel(models.Model):
         return self.name
 
 class Video(models.Model):
-    owner = models.ForeignKey(Channel, on_delete=models.CASCADE, related_name='videos', null=True)
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='videos', null=True)
     title = models.CharField(max_length=255)
     views_count = models.PositiveIntegerField(default=0)
     original_file = models.FileField(upload_to='originals/')
@@ -39,6 +39,7 @@ class Video(models.Model):
     hls_path = models.CharField(max_length=512, blank=True)
     status = models.CharField(max_length=20, default='uploading')
     duration = models.FloatField(default=0)
+    thumbnail = models.ImageField(upload_to='thumbnails/', null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     
     def __str__(self):
@@ -61,3 +62,11 @@ class Rating(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     value = models.IntegerField()
 
+class VideoThumbnail(models.Model):
+    video = models.ForeignKey(Video, on_delete=models.CASCADE, related_name='thumbnails')
+    image = models.ImageField(upload_to='thumbnails/')
+    timestamp = models.FloatField(default=0)  # время в секундах
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    def __str__(self):
+        return f"Thumbnail for {self.video.title} at {self.timestamp}s"

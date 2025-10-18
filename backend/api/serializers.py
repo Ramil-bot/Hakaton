@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Video, Comment, Rating, Channel
+from .models import Video, Comment, Rating, Channel, VideoThumbnail
 from django.contrib.auth import get_user_model
 
 User = get_user_model()
@@ -19,7 +19,7 @@ class VideoSerializer(serializers.ModelSerializer):
         fields = [
             'id', 'title', 'owner', 'original_file', 'is_owner', 
             'duration', 'created_at', 'hls_path',
-            'views_count', 'likes_count', 
+            'views_count', 'likes_count', 'thumbnail'
         ]
         # 'thumbnail'
         extra_kwargs = {'hls_path': {'read_only': True}}
@@ -37,10 +37,25 @@ class VideoSerializer(serializers.ModelSerializer):
         validated_data['owner'] = self.context['request'].user
         return super().create(validated_data)
 
+    def get_thumbnail_url(self, obj):
+        if obj.thumbnail:
+            request = self.context.get('request')
+            if request:
+                return request.build_absolute_uri(obj.thumbnail.url)
+            return obj.thumbnail.url
+        return None
+
     def get_hls_url(self, obj):
         if obj.hls_path:
-            return default_storage.url(obj.hls_path)
+            request = self.context.get('request')
+            if request:
+                # Предполагая, что hls_path хранится относительно media
+                return request.build_absolute_uri(f'/media/{obj.hls_path}')
+            return f'/media/{obj.hls_path}'
         return None
+    def get_status(self, obj):
+        if obj.status !='completed':
+            return True
 
 class ChannelSerializer(serializers.ModelSerializer):
     videos = VideoSerializer(many=True, read_only=True)
@@ -66,3 +81,17 @@ class CommentModerationSerializer(serializers.ModelSerializer):
         extra_kwargs = {
             'status': {'required': True},
         }
+
+class VideoThumbnailSerializer(serializers.ModelSerializer):
+    image_url = serializers.SerializerMethodField()
+
+    class Meta:
+        model = VideoThumbnail
+        fields = ['id', 'image', 'image_url', 'timestamp', 'created_at']
+        read_only_fields = ['id', 'created_at']
+
+    def get_image_url(self, obj):
+        if obj.image:
+            return obj.image.url
+        return None
+
